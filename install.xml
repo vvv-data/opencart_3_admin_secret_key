@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>admin secret key</name>                
+  <code>admin_secret_key</code>                
+  <version>1.0</version>           
+  <author>vvv-data</author>           
+  <link>https://vvvdata.ru</link>  
+ 
+<file path="admin/controller/common/login.php">  
+  <operation>
+    <search>                           
+      <![CDATA[public function index()]]>
+    </search>
+    <add position="after">             
+      <![CDATA[
+    $this->load->model('extension/module/admin_secret_key');
+		$dataSecret = $this->model_extension_module_admin_secret_key->GetSecret();
+		if ($dataSecret) {
+			$secret = '';
+			if (isset($this->request->get['secret'])) {
+				$secret = $this->request->get['secret'];
+				$this->session->data['secret'] = $secret;
+			} elseif (isset($this->session->data['secret']))
+			$secret = $this->session->data['secret'];
+			if ($secret != $dataSecret['module_admin_secret_key_key']) {
+				if ($dataSecret['module_admin_secret_key_page'])
+				header('Refresh: 0; url=' . $dataSecret['module_admin_secret_key_page']);
+				else
+					header('Refresh: 0; url=/index.php?route=error/not_found');
+				exit;
+			}
+		}
+      ]]>
+    </add>
+  </operation>    
+</file>
+</modification>
